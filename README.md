@@ -2,6 +2,76 @@
 
 This project uses Git for version control. Below are the common commands and workflows you'll need.
 
+## Quick Start: Clone & Add Java File
+
+### 1. Clone the Repository
+```bash
+# HTTPS (recommended for beginners)
+git clone https://github.com/your-username/your-repo.git
+
+# Or SSH (if you have SSH keys set up)
+git clone git@github.com:your-username/your-repo.git
+
+# Navigate into the project
+cd your-repo
+```
+
+### 2. Open in VS Code
+1. Open VS Code
+2. **File → Open Folder** (or `Ctrl+K Ctrl+O`)
+3. Select the cloned folder (`your-repo`)
+4. Install **"Extension Pack for Java"** (by Microsoft) when prompted
+   - Or manually: Extensions (`Ctrl+Shift+X`) → search "Extension Pack for Java" → Install
+
+### 3. Add a New Java File in `src`
+**Option A: Via VS Code (Recommended)**
+1. In **Explorer** (`Ctrl+Shift+E`), expand `Java Code` → `src`
+2. Right-click `src` (or a package folder) → **New File**
+3. Name it `HelloWorld.java`
+4. VS Code will auto-suggest class template — press `Tab` to accept
+5. Write your code, then **Ctrl+S** to save
+
+**Option B: Via File System / Terminal**
+```bash
+# Navigate to src directory
+cd "Java Code/src"
+
+# Create a new Java file (example)
+cat > HelloWorld.java << 'EOF'
+public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}
+EOF
+```
+VS Code auto-detects new files — no refresh needed.
+
+### 4. Run the Java File
+- **Run button** (▶) appears above `main` method — click it
+- Or: Right-click in editor → **Run Java**
+- Or: `F5` to debug, `Ctrl+F5` to run without debugging
+- Output shows in **Terminal** panel
+
+### 5. Commit & Push Your Changes
+```bash
+# Check what changed
+git status
+
+# Stage the new file
+git add "Java Code/src/HelloWorld.java"
+
+# Commit with a message
+git commit -m "Add HelloWorld class in src"
+
+# Push to remote
+git push
+```
+
+---
+
+## Initial Setup (one-time)
+
 ## Initial Setup (one-time)
 
 ```bash
