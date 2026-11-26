@@ -60,6 +60,8 @@ git status
 
 # Stage the new file
 git add "Java Code/src/HelloWorld.java"
+# Or stage all changes
+git add .
 
 # Commit with a message
 git commit -m "Add HelloWorld class in src"
@@ -69,8 +71,6 @@ git push
 ```
 
 ---
-
-## Initial Setup (one-time)
 
 ## Initial Setup (one-time)
 
