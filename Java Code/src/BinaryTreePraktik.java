@@ -1,16 +1,13 @@
 import java.util.*;
 
 /**
- * BINARY TREE PRAKTIK - Berdasarkan materi Binary_Tree_rapi.pptx
- * Disejajarkan dengan variabel & konvensi StudiKasusTree.java
- *
+ * BINARY TREE PRAKTIK
  * Konvensi: root level 0, tinggi dalam edge (leaf = 0, kosong = -1)
  */
 public class BinaryTreePraktik {
 
-    // =====================================================================
     // 1. NODE CLASS (Binary Tree umum)
-    // =====================================================================
+    
     static class Node {
         char data;
         Node left, right;
@@ -20,7 +17,6 @@ public class BinaryTreePraktik {
         }
     }
 
-    // =====================================================================
     // 2. BUILD CONTOH POHON (A-G)
     //        A
     //      /   \
@@ -29,7 +25,7 @@ public class BinaryTreePraktik {
     //   D   E F
     //      /
     //     G
-    // =====================================================================
+    
     static Node buildTree() {
         Node A = new Node('A');
         Node B = new Node('B');
@@ -47,9 +43,7 @@ public class BinaryTreePraktik {
         return A;
     }
 
-    // =====================================================================
     // 3. TRAVERSAL (DFS & BFS)
-    // =====================================================================
 
     static void preorder(Node n, List<String> out) {
         if (n == null) return;
@@ -83,10 +77,8 @@ public class BinaryTreePraktik {
             if (cur.right != null) q.add(cur.right);
         }
     }
-
-    // =====================================================================
+    
     // 4. OPERASI DASAR
-    // =====================================================================
 
     static int countNodes(Node node) {
         if (node == null) return 0;
@@ -142,9 +134,7 @@ public class BinaryTreePraktik {
         printTree(n.left, level + 1);
     }
 
-    // =====================================================================
     // 5. BINARY SEARCH TREE (Mahasiswa)
-    // =====================================================================
 
     static class Mahasiswa {
         int nim;
@@ -286,9 +276,8 @@ public class BinaryTreePraktik {
         }
     }
 
-    // =====================================================================
     // 6. AVL TREE
-    // =====================================================================
+    
     static class AVLNode {
         int data;
         int height;
@@ -359,9 +348,8 @@ public class BinaryTreePraktik {
         inorderAVL(n.right, out);
     }
 
-    // =====================================================================
     // 7. RED-BLACK TREE
-    // =====================================================================
+
     static class RBNode {
         int data;
         boolean isRed;
@@ -473,9 +461,8 @@ public class BinaryTreePraktik {
         }
     }
 
-    // =====================================================================
     // UTILITAS
-    // =====================================================================
+    
     static String join(List<String> list) {
         return String.join(", ", list);
     }
@@ -485,9 +472,6 @@ public class BinaryTreePraktik {
         System.out.println("=== " + title + " ===");
     }
 
-    // =====================================================================
-    // MAIN
-    // =====================================================================
     public static void main(String[] args) {
         System.out.println("=== BINARY TREE PRAKTIK (dari Binary_Tree_rapi.pptx) ===");
         System.out.println("Konvensi variabel disejajarkan dengan StudiKasusTree.java\n");
