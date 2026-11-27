@@ -4,70 +4,62 @@ import java.util.List;
 /**
  * STUDI KASUS: Sistem Data Akademik Kampus
  *
- * Bagian 1 - TREE            : struktur folder arsip kampus (satu node boleh punya banyak anak)
+ * Bagian 1 - TREE               : struktur folder arsip kampus (general tree, banyak anak)
  * Bagian 2 - BINARY SEARCH TREE : pencarian data mahasiswa berdasarkan NIM
  *
- * Konvensi: root berada di level 0, tinggi dihitung dalam edge (leaf = 0, pohon kosong = -1).
+ * Konvensi: root level 0, tinggi dalam edge (leaf = 0, kosong = -1).
  */
 public class StudiKasusTree {
 
-    // =====================================================================
-    // BAGIAN 1: TREE (struktur folder)
-    // =====================================================================
+    // BAGIAN 1: TREE (struktur folder - general tree)
 
-    static class FolderNode {
-        String nama;
-        List<FolderNode> anak = new ArrayList<>();
+    static class TreeNode {
+        String data;
+        List<TreeNode> children = new ArrayList<>();
 
-        FolderNode(String nama) {
-            this.nama = nama;
+        TreeNode(String data) {
+            this.data = data;
         }
 
-        FolderNode tambah(FolderNode child) {
-            anak.add(child);
+        TreeNode addChild(TreeNode child) {
+            children.add(child);
             return this;
         }
     }
 
-    // Cetak pohon dengan indentasi sesuai level (preorder)
-    static void cetakFolder(FolderNode node, int level) {
-        System.out.println("  ".repeat(level) + "- " + node.nama);
-        for (FolderNode child : node.anak) {
-            cetakFolder(child, level + 1);
+    static void printTree(TreeNode node, int level) {
+        System.out.println("  ".repeat(level) + "- " + node.data);
+        for (TreeNode child : node.children) {
+            printTree(child, level + 1);
         }
     }
 
-    // Jumlah node = 1 (node ini) + jumlah node di setiap anak
-    static int hitungFolder(FolderNode node) {
+    static int countNodes(TreeNode node) {
         int total = 1;
-        for (FolderNode child : node.anak) {
-            total += hitungFolder(child);
+        for (TreeNode child : node.children) {
+            total += countNodes(child);
         }
         return total;
     }
 
-    // Tinggi: leaf = 0, node lain = 1 + tinggi anak terdalam
-    static int tinggiFolder(FolderNode node) {
-        int maks = -1;
-        for (FolderNode child : node.anak) {
-            maks = Math.max(maks, tinggiFolder(child));
+    static int height(TreeNode node) {
+        int max = -1;
+        for (TreeNode child : node.children) {
+            max = Math.max(max, height(child));
         }
-        return 1 + maks; // leaf: 1 + (-1) = 0
+        return 1 + max;
     }
 
-    // Hitung leaf (folder tanpa subfolder)
-    static int hitungLeaf(FolderNode node) {
-        if (node.anak.isEmpty()) return 1;
+    static int countLeaves(TreeNode node) {
+        if (node.children.isEmpty()) return 1;
         int total = 0;
-        for (FolderNode child : node.anak) {
-            total += hitungLeaf(child);
+        for (TreeNode child : node.children) {
+            total += countLeaves(child);
         }
         return total;
     }
 
-    // =====================================================================
     // BAGIAN 2: BINARY SEARCH TREE (data mahasiswa berdasarkan NIM)
-    // =====================================================================
 
     static class Mahasiswa {
         int nim;
@@ -98,9 +90,8 @@ public class StudiKasusTree {
     static class BST {
         Node root;
 
-        // ---- INSERT: NIM lebih kecil ke kiri, lebih besar ke kanan ----
         boolean insert(Mahasiswa m) {
-            if (cari(m.nim) != null) return false; // NIM harus unik
+            if (search(m.nim) != null) return false;
             root = insert(root, m);
             return true;
         }
@@ -112,8 +103,7 @@ public class StudiKasusTree {
             return node;
         }
 
-        // ---- SEARCH ----
-        Mahasiswa cari(int nim) {
+        Mahasiswa search(int nim) {
             Node cur = root;
             while (cur != null) {
                 if (nim == cur.data.nim) return cur.data;
@@ -122,26 +112,24 @@ public class StudiKasusTree {
             return null;
         }
 
-        // ---- DELETE (3 kasus: leaf, 1 anak, 2 anak) ----
-        boolean hapus(int nim) {
-            if (cari(nim) == null) return false;
-            root = hapus(root, nim);
+        boolean delete(int nim) {
+            if (search(nim) == null) return false;
+            root = delete(root, nim);
             return true;
         }
 
-        private Node hapus(Node node, int nim) {
+        private Node delete(Node node, int nim) {
             if (node == null) return null;
             if (nim < node.data.nim) {
-                node.left = hapus(node.left, nim);
+                node.left = delete(node.left, nim);
             } else if (nim > node.data.nim) {
-                node.right = hapus(node.right, nim);
+                node.right = delete(node.right, nim);
             } else {
-                if (node.left == null) return node.right;   // leaf atau hanya anak kanan
-                if (node.right == null) return node.left;   // hanya anak kiri
-                // 2 anak: ganti dengan successor (node terkecil di subtree kanan)
+                if (node.left == null) return node.right;
+                if (node.right == null) return node.left;
                 Node succ = minNode(node.right);
                 node.data = succ.data;
-                node.right = hapus(node.right, succ.data.nim);
+                node.right = delete(node.right, succ.data.nim);
             }
             return node;
         }
@@ -151,7 +139,6 @@ public class StudiKasusTree {
             return node;
         }
 
-        // ---- MIN & MAX ----
         Mahasiswa min() {
             return root == null ? null : minNode(root).data;
         }
@@ -163,81 +150,90 @@ public class StudiKasusTree {
             return cur.data;
         }
 
-        // ---- TRAVERSAL ----
-        void inorder(Node n, List<String> out) {      // kiri, node, kanan -> terurut naik
+        void inorder(Node n, List<String> out) {
             if (n == null) return;
             inorder(n.left, out);
             out.add(String.valueOf(n.data.nim));
             inorder(n.right, out);
         }
 
-        void preorder(Node n, List<String> out) {     // node, kiri, kanan
+        void preorder(Node n, List<String> out) {
             if (n == null) return;
             out.add(String.valueOf(n.data.nim));
             preorder(n.left, out);
             preorder(n.right, out);
         }
 
-        void postorder(Node n, List<String> out) {    // kiri, kanan, node
+        void postorder(Node n, List<String> out) {
             if (n == null) return;
             postorder(n.left, out);
             postorder(n.right, out);
             out.add(String.valueOf(n.data.nim));
         }
 
-        // ---- JUMLAH NODE & TINGGI ----
-        int jumlah(Node n) {
+        void levelOrder(Node root, List<String> out) {
+            if (root == null) return;
+            java.util.Queue<Node> q = new java.util.LinkedList<>();
+            q.add(root);
+            while (!q.isEmpty()) {
+                Node cur = q.poll();
+                out.add(String.valueOf(cur.data.nim));
+                if (cur.left != null) q.add(cur.left);
+                if (cur.right != null) q.add(cur.right);
+            }
+        }
+
+        int size(Node n) {
             if (n == null) return 0;
-            return 1 + jumlah(n.left) + jumlah(n.right);
+            return 1 + size(n.left) + size(n.right);
         }
 
-        int tinggi(Node n) {
+        int height(Node n) {
             if (n == null) return -1;
-            return 1 + Math.max(tinggi(n.left), tinggi(n.right));
+            return 1 + Math.max(height(n.left), height(n.right));
         }
 
-        // ---- TAMPILAN POHON (miring ke kiri: kanan di atas, kiri di bawah) ----
-        void cetakPohon(Node n, int level) {
+        void printTree(Node n, int level) {
             if (n == null) return;
-            cetakPohon(n.right, level + 1);
+            printTree(n.right, level + 1);
             System.out.println("    ".repeat(level) + n.data.nim + " (" + n.data.nama + ")");
-            cetakPohon(n.left, level + 1);
+            printTree(n.left, level + 1);
         }
     }
 
-    // =====================================================================
-    // PROGRAM UTAMA
-    // =====================================================================
+    // UTILITAS
 
-    static String gabung(List<String> list) {
+    static String join(List<String> list) {
         return String.join(", ", list);
     }
 
-    static void garis(String judul) {
+    static void header(String title) {
         System.out.println();
-        System.out.println("=== " + judul + " ===");
+        System.out.println("=== " + title + " ===");
     }
+
+    // MAIN
 
     public static void main(String[] args) {
 
         // ---------- BAGIAN 1: TREE ----------
-        garis("BAGIAN 1: TREE - Struktur Folder Arsip Kampus");
+        header("BAGIAN 1: TREE - Struktur Folder Arsip Kampus");
 
-        FolderNode root = new FolderNode("Arsip Kampus");
-        FolderNode akademik = new FolderNode("Akademik");
-        akademik.tambah(new FolderNode("Nilai")).tambah(new FolderNode("Jadwal"));
-        FolderNode keuangan = new FolderNode("Keuangan");
-        keuangan.tambah(new FolderNode("SPP"));
-        FolderNode kemahasiswaan = new FolderNode("Kemahasiswaan");
-        root.tambah(akademik).tambah(keuangan).tambah(kemahasiswaan);
+        TreeNode root = new TreeNode("Arsip Kampus");
+        TreeNode akademik = new TreeNode("Akademik");
+        akademik.addChild(new TreeNode("Nilai")).addChild(new TreeNode("Jadwal"));
+        TreeNode keuangan = new TreeNode("Keuangan");
+        keuangan.addChild(new TreeNode("SPP"));
+        TreeNode kemahasiswaan = new TreeNode("Kemahasiswaan");
+        root.addChild(akademik).addChild(keuangan).addChild(kemahasiswaan);
 
-        cetakFolder(root, 0);
-        System.out.println("Jumlah folder : " + hitungFolder(root));   // 7
-        System.out.println("Jumlah leaf   : " + hitungLeaf(root));     // 4
-        System.out.println("Tinggi        : " + tinggiFolder(root));   // 2
+        printTree(root, 0);
+        System.out.println("Jumlah node : " + countNodes(root));
+        System.out.println("Jumlah leaf : " + countLeaves(root));
+        System.out.println("Tinggi      : " + height(root));
 
         // ---------- BAGIAN 2: BST ----------
-        garis("BAGIAN 2: BST - Data Mahasiswa berdasarkan NIM");
+        header("BAGIAN 2: BST - Data Mahasiswa berdasarkan NIM");
 
         BST bst = new BST();
         bst.insert(new Mahasiswa(50, "Andi", 3.50));
@@ -248,50 +244,53 @@ public class StudiKasusTree {
         bst.insert(new Mahasiswa(60, "Fani", 3.40));
         bst.insert(new Mahasiswa(80, "Gita", 3.90));
 
-        System.out.println("Bentuk pohon (root di kiri, kanan di atas):");
-        bst.cetakPohon(bst.root, 0);
+        System.out.println("Bentuk pohon (root kiri, kanan atas):");
+        bst.printTree(bst.root, 0);
 
-        garis("Traversal");
+        header("Traversal");
         List<String> hasil = new ArrayList<>();
         bst.inorder(bst.root, hasil);
-        System.out.println("Inorder   : " + gabung(hasil) + "   (terurut naik)");
+        System.out.println("Inorder   : " + join(hasil) + "   (terurut naik)");
         hasil.clear();
         bst.preorder(bst.root, hasil);
-        System.out.println("Preorder  : " + gabung(hasil));
+        System.out.println("Preorder  : " + join(hasil));
         hasil.clear();
         bst.postorder(bst.root, hasil);
-        System.out.println("Postorder : " + gabung(hasil));
+        System.out.println("Postorder : " + join(hasil));
+        hasil.clear();
+        bst.levelOrder(bst.root, hasil);
+        System.out.println("LevelOrder: " + join(hasil));
 
-        garis("Informasi Pohon");
-        System.out.println("Jumlah node : " + bst.jumlah(bst.root));   // 7
-        System.out.println("Tinggi      : " + bst.tinggi(bst.root));   // 2
-        System.out.println("NIM terkecil: " + bst.min());
-        System.out.println("NIM terbesar: " + bst.max());
+        header("Informasi Pohon");
+        System.out.println("Size      : " + bst.size(bst.root));
+        System.out.println("Height    : " + bst.height(bst.root));
+        System.out.println("Min (NIM) : " + bst.min());
+        System.out.println("Max (NIM) : " + bst.max());
 
-        garis("Pencarian");
+        header("Search");
         int[] dicari = {40, 99};
         for (int nim : dicari) {
-            Mahasiswa m = bst.cari(nim);
-            System.out.println("Cari " + nim + " -> " + (m != null ? m : "tidak ditemukan"));
+            Mahasiswa m = bst.search(nim);
+            System.out.println("Search " + nim + " -> " + (m != null ? m : "not found"));
         }
 
-        garis("Insert NIM duplikat");
-        boolean ok = bst.insert(new Mahasiswa(40, "Duplikat", 2.00));
-        System.out.println("Insert NIM 40 lagi -> " + (ok ? "berhasil" : "ditolak (NIM sudah ada)"));
+        header("Insert Duplicate NIM");
+        boolean ok = bst.insert(new Mahasiswa(40, "Duplicate", 2.00));
+        System.out.println("Insert NIM 40 again -> " + (ok ? "success" : "rejected (NIM exists)"));
 
-        garis("Hapus Data (3 kasus)");
-        System.out.println("Hapus 20 (leaf)        : " + bst.hapus(20));
-        System.out.println("Hapus 30 (1 anak: 40)  : " + bst.hapus(30));
-        System.out.println("Hapus 50 (2 anak/root) : " + bst.hapus(50));
-        System.out.println("Hapus 99 (tidak ada)   : " + bst.hapus(99));
+        header("Delete (3 cases)");
+        System.out.println("Delete 20 (leaf)        : " + bst.delete(20));
+        System.out.println("Delete 30 (1 child: 40) : " + bst.delete(30));
+        System.out.println("Delete 50 (2 child/root): " + bst.delete(50));
+        System.out.println("Delete 99 (not exist)   : " + bst.delete(99));
 
         System.out.println();
-        System.out.println("Bentuk pohon setelah penghapusan:");
-        bst.cetakPohon(bst.root, 0);
+        System.out.println("Tree after deletion:");
+        bst.printTree(bst.root, 0);
 
         hasil.clear();
         bst.inorder(bst.root, hasil);
-        System.out.println("Inorder   : " + gabung(hasil));
-        System.out.println("Jumlah node: " + bst.jumlah(bst.root) + ", tinggi: " + bst.tinggi(bst.root));
+        System.out.println("Inorder   : " + join(hasil));
+        System.out.println("Size: " + bst.size(bst.root) + ", Height: " + bst.height(bst.root));
     }
 }
